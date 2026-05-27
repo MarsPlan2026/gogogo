@@ -206,8 +206,8 @@
 
                 // 计算飞向中心的向量
                 const angle = Math.atan2(GAME_SIZE/2 - this.y, GAME_SIZE/2 - this.x);
-                // 动态速度：随分数增加而变态变快
-                const speedMod = baseSpeed + (score * 0.15) + (Math.random() * 1.5);
+                // 改进：难度增长更平缓，避免无解
+                const speedMod = baseSpeed + (score * 0.08) + (Math.random() * 0.8);
                 this.vx = Math.cos(angle) * speedMod;
                 this.vy = Math.sin(angle) * speedMod;
             }
@@ -305,13 +305,13 @@
 
             player.update();
 
-            // 敌人生成逻辑（随时间越来越密集）
+            // 敌人生成逻辑（随时间越来越密集，但增长更平缓）
             spawnTimer++;
-            let currentSpawnRate = Math.max(15, baseSpawnRate - (score * 2));
+            let currentSpawnRate = Math.max(25, baseSpawnRate - (score * 0.8));
             if (spawnTimer >= currentSpawnRate) {
                 enemies.push(new Enemy());
-                // 高分段有概率连续成对生成
-                if (score > 15 && Math.random() > 0.7) {
+                // 只在极高分段有概率成对生成
+                if (score > 30 && Math.random() > 0.85) {
                     setTimeout(() => { if(gameState === 'PLAYING') enemies.push(new Enemy()); }, 200);
                 }
                 spawnTimer = 0;
@@ -330,8 +330,8 @@
                     if (e.color === player.color) {
                         score++;
                         scoreText.innerText = score;
-                        // 加速转动，增加视觉压迫感
-                        player.rotSpeed = 0.04 + (score * 0.005); 
+                        // 减缓转速增长，避免视觉混乱
+                        player.rotSpeed = 0.04 + (score * 0.002); 
                         triggerShake(5);
                         createParticles(e.x, e.y, e.color === 1 ? '#888888' : '#000000', 6);
                         enemies.splice(i, 1);
